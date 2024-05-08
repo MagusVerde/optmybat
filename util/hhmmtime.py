@@ -2,8 +2,8 @@
 #
 # Copyright 2024 Magus Verde
 #
-# A class that handles time expressed hh:mm.  Supports full modulo artihmetic
-# and arithmetic comparison.
+# A class that handles time expressed as hours and minutes.  Supports full
+# modulo artihmetic and arithmetic comparison.
 #
 # This file is part of Optmybat.
 #
@@ -81,8 +81,7 @@ class HHMMTime(object):
             # Make sure value is an in-range integer
             value = self.__wrap(value)
             # Extract the hours and minutes
-            hh = int(value / 60)
-            mm = value % 60
+            (hh, mm) = divmod(value, 60)
         if hh < 0 or hh > 24 or (hh == 24 and mm > 0) or mm < 0 or mm > 59:
             raise ValueError(f"HHMMTimes must be between 00:00 and 24:00 not '{hh:02d}:{mm:02d}")
         self.hours = hh

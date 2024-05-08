@@ -91,7 +91,7 @@ def doWork():
     except SungrowError as err:
         logger.critical(err)
     except Exception as err:
-        logger.critical('Unexpected %s exception' % type(err).__name__, exc_info = True)
+        logger.critical('Unexpected %s exception', type(err).__name__, exc_info = True)
     return did_it
 
 def main(args):

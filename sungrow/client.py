@@ -265,7 +265,6 @@ class Client(object):
             inverter_now = datetime.strptime(r.time, '%Y-%m-%d %H:%M')
             if self.config.timezone is not None:
                 inverter_now = self.config.timezone.localize(inverter_now)
-            print(f"inverter_now = {inverter_now}")
             self.sg_timeslip = int((inverter_now - now).total_seconds() / 60)
             if abs(self.sg_timeslip) > 60:
                 self.logger.warning(f"Inverter time ({r.time}) is radically different to local time")
