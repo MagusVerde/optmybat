@@ -1,0 +1,13 @@
+# Don't include transitory content
+.git
+.gitignore
+.pytest_cache
+.venv
+.vscode
+**/__pycache__
+*.dump
+.*.sw?
+
+# This content is not relevant to the container
+docs
+setup.py

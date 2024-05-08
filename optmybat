@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+#
+# Copyright 2024 Magus Verde
+#
+# The main entry point for optmybat.
+#
+# This file is part of Optmybat.
+#
+# Optmybat is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Optmybat is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+#
+# NO AI TRAINING: Any use of this code related to the development, or training
+# of AI systems is explicitly prohibited. Personal use, indexing for Internet
+# search engines, etc. is intended, permitted and encouraged.
+#
+# You can review the GNU Affero General Public License at <https://www.gnu.org/licenses/>.
+
+import argparse
+from scanner import scanner
+from sungrow import optmybat
+
+def parseArgs():
+    '''
+    Configure argparse and return the parsed arguments.
+
+    :returns: parsed arguments
+    '''
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--once',
+        action='store_true',
+        help='Only run once')
+    parser.add_argument('--scan',
+        action='store',
+        metavar='NETWORK',
+        default='unset',
+        nargs='?',
+        help='Scan for an inverter.  If no network specified, scans all attached networks.')
+    return parser.parse_args()
+
+# Parse the arguments
+args = parseArgs()
+
+# Do the needful
+if args.scan != 'unset':
+    # The --scan argument was used
+    scanner.main(args.scan)
+else:
+    optmybat.main(args)
