@@ -1,0 +1,8 @@
+pypi-json
+netaddr
+netifaces
+pytest
+pytz
+PyYAML
+requests
+websocket-client>=1.2.1

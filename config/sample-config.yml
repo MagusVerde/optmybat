@@ -1,0 +1,80 @@
+# A sample configuration file for Optmybat.  To use Optmybat,
+# you need to update the required fields then copy the file
+# to $HOME/.optmybat.cfg.
+
+#----------------------------------------------------------
+# How much information do you want to see.  Set to WARN for
+# nothing except errors, INFO to see a little, DEBUG to see too much.
+log_level: INFO
+
+#----------------------------------------------------------
+# Connection details for the inverter
+
+# The host name or IP address of the inverter.  If you don't
+# know that yet, run `optmybat --scan` to find it.
+sg_host: 'inverter'
+# The websocket port on the inverter (defaults to 8082)
+sg_ws_port: 8082
+# The inverter's admin user name and password.  Sungrow defaults
+# are admin/pw8888 or user/pw1111.  You can use the WiNet-S
+# web interface to change it if you're paranoid.
+admin_user: 'admin'
+admin_passwd: 'pw8888'
+# Poll interval in seconds.  Note that the WiNet-S interface is
+# not very obust.  I found that a poll interval less than 10 would
+# cause it to crash and reboot fairly frequently.
+poll_interval: 30
+
+#----------------------------------------------------------
+# Optmybat automatically adjusts for differences between the inverter's
+# time and it's time but, assuming that you're optimising time of day
+# electricity charges, you need optmybat's timing to be accurate.  If
+# timezone is not set, optmybat will use your computer's local time.
+#
+# If using a container or you want to be explicit, set the timezone variable
+# below to an IANA time zone string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+# For example, you can use 'CST' or 'Asia/Shanghai' if you're in China.
+#timezone: Asia/Calcutta
+
+#----------------------------------------------------------
+# Desired time based minimum state of charge levels.
+
+# Specify times as hh:mm.  Note that, if there are any overlaps, the highest
+# target wins.  Also note that the times wrap - if you specify a start time
+# lower than the stop time, it will include midnight.
+#
+# The example times below provide for:
+#   Very cheap electrictity from midnight to 06:00
+#   Cheaper electricity from 10:00 to 14:00
+#   High prices at other times but don't let the battery completely drain
+#
+# The 00:00 to 06:00 target assumes that you will start getting solar
+# to charge the battery before you run out of battery in the morning.
+# If your solar kicks in earlier/stronger, you could lower the target.
+# If it's later, raise the target.
+#
+# The 13:00 to 14:00 target is an emergency backup for very wet days.
+# It assumes that, unless you're getting almost no solar energy, the
+# battery charges to 60% well before 13:30 so you only need the top up
+# when your solar production is low. You should monitor this target to
+# ensure that it's not too high for your solar production.  If you see
+# the battery being charged to 60% but then going to full from the
+# remaining solar, you should lower the target.
+#
+# The 00:00 to 24:00 target sets an absolute minimum for the battery.
+# This exists to extend the life of the battery.
+soc_min:
+  # Super cheap period so get ready for the morning peak
+  - start: 00:00
+    stop:  06:00
+    target:   15
+  # End of the daylight shoulder - get ready for the evening peak
+  - start: 13:00
+    stop:  14:00
+    target:   60
+    # Only do this on week days (Monday to Friday)
+    days:  [ 0, 1, 2, 3, 4 ]
+  # Never let the battery go below 3%
+  - start: 00:00
+    stop:  24:00
+    target:   3
