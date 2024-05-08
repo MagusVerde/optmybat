@@ -2,8 +2,10 @@
 #
 # Copyright 2024 Magus Verde
 #
-# Localised content for the Sungrow SH5 inverter.  Obtained by analysing the webh interface
+# Localised content for the Sungrow SH5 inverter.  Obtained by analysing the web interface
 # traffic.
+#
+# This file is part of Optmybat.
 #
 # Optmybat is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software

@@ -1,6 +1,6 @@
 # A sample configuration file for Optmybat.  To use Optmybat,
-# you need to update the required fields then copy the file
-# to $HOME/.optmybat.cfg.
+# you need to update the required fields and save the file
+# to config/config.yml.
 
 #----------------------------------------------------------
 # How much information do you want to see.  Set to WARN for
@@ -21,8 +21,8 @@ sg_ws_port: 8082
 admin_user: 'admin'
 admin_passwd: 'pw8888'
 # Poll interval in seconds.  Note that the WiNet-S interface is
-# not very obust.  I found that a poll interval less than 10 would
-# cause it to crash and reboot fairly frequently.
+# not very robust.  I have found that a poll interval less than
+# 10 would cause it to crash and reboot fairly frequently.
 poll_interval: 30
 
 #----------------------------------------------------------
@@ -55,10 +55,10 @@ poll_interval: 30
 #
 # The 13:00 to 14:00 target is an emergency backup for very wet days.
 # It assumes that, unless you're getting almost no solar energy, the
-# battery charges to 60% well before 13:30 so you only need the top up
+# battery charges to 60% well before 13:00 so you only need the top up
 # when your solar production is low. You should monitor this target to
-# ensure that it's not too high for your solar production.  If you see
-# the battery being charged to 60% but then going to full from the
+# ensure that it's not too high for your solar production.  If you regularly
+# see the battery being charged to 60% but then going to full from the
 # remaining solar, you should lower the target.
 #
 # The 00:00 to 24:00 target sets an absolute minimum for the battery.

@@ -66,7 +66,7 @@ def test_arithmetic():
     t += 1
     assert t.value == 1
     assert t.hours == 0
-    assert t.minutes == 1   
+    assert t.minutes == 1
     t -= 31
     assert t.value == 24 * 60 - 30
     assert t.hours == 23
