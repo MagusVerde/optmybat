@@ -50,7 +50,8 @@ class HHMMTime(object):
         '''
         Modulo an arbitrary number to a valid HHMMTime range
         '''
-        value = int(value) % HHMMTime.ONE_DAY
+        if abs(value) > HHMMTime.ONE_DAY:
+            value = int(value) % HHMMTime.ONE_DAY
         if value < 0:
             value += HHMMTime.ONE_DAY
         return value
@@ -94,19 +95,25 @@ class HHMMTime(object):
         if not isinstance(other, HHMMTime):
             other = HHMMTime(other)
         result = self.value + other.value
+        if result == HHMMTime.ONE_DAY:
+            result = 0
         return HHMMTime(HHMMTime.__wrap(result))
 
     def __sub__(self, other):
         if not isinstance(other, HHMMTime):
             other = HHMMTime(other)
         result = self.value - other.value
+        if result == HHMMTime.ONE_DAY:
+            result = 0
         return HHMMTime(HHMMTime.__wrap(result))
 
     # And for comparison and equivalence
     def __eq__(self, other):
-        # Note that 24:00 == 00:00 so we always need to wrap
+        # Note that 24:00 == 00:00 so we need to explicitly handle that
         assert isinstance(other, HHMMTime)
-        return HHMMTime.__wrap(self.value) == HHMMTime.__wrap(other.value)
+        sv = 0 if self.value == HHMMTime.ONE_DAY else self.value 
+        ov = 0 if other.value == HHMMTime.ONE_DAY else other.value 
+        return sv == ov
 
     def __lt__(self, other):
         assert isinstance(other, HHMMTime)

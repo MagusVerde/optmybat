@@ -38,8 +38,8 @@ def test_new():
     assert t.hours == 0
     assert t.minutes == 0
     t = HHMMTime(HHMMTime.ONE_DAY)
-    assert t.value == 0
-    assert t.hours == 0
+    assert t.value == 24 * 60
+    assert t.hours == 24
     assert t.minutes == 0
     t = HHMMTime(24, 0)
     assert t.value == 24 * 60
