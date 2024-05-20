@@ -48,7 +48,8 @@ def updateForceCharge(config):
     target = None
     now = HHMMTime.now()
     for t in timings:
-        if now >= t.start and now < t.stop and soc <= t.target:
+        # Add a fudge factor (0.1) to the target to avoid bouncing around the target
+        if now >= t.start and now < t.stop and (soc+0.1) <= t.target:
             target = t
             break
     logger.debug(f"SoC is {soc}%, Force Charge is {'disabled' if fc_target == 0 else fc_target}, want {target}")
@@ -72,9 +73,9 @@ def updateForceCharge(config):
         logger.info(f"Doing nothing - battery is {soc}%")
     else:
         if target.target == 0:
-            logger.info('Disabling force charge')
+            logger.info(f'Disabling force charge - battery is {soc}%')
         else:
-            logger.info(f"Setting force charge to {target.target}% until {target.stop}")
+            logger.info(f"Setting force charge to {target.target}% until {target.stop} - battery is {soc}%")
         client.setForceCharge(target)
     client.close()
     return target is not None

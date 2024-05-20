@@ -38,7 +38,14 @@ def test_simple_targets():
     assert len(r) == 1
     assert r[0] == t1_target
     assert r[0].target == t1_target.target
-    # Does it correctly parsed a wrapped entry
+    # Another single entry
+    t1_dict = {'start': '00:00', 'stop': '24:00', 'target': 20}
+    t1_target = TimedTarget('00:00', '24:00', 20)
+    r = TimedTarget.loadTargets([t1_dict])
+    assert len(r) == 1
+    assert r[0] == t1_target
+    assert r[0].target == t1_target.target
+    # Does it correctly parse a wrapped entry
     wrapped_dict = {'start': '23:00', 'stop': '06:00', 'target': 20}
     wrapped1 = TimedTarget('00:00', '06:00', 20)
     wrapped2 = TimedTarget('23:00', '00:00', 20)

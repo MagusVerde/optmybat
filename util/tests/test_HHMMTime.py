@@ -111,6 +111,41 @@ def test_comparison():
     assert t1 <= t2
     assert t1 >= t2
 
+def test_corners():
+    '''
+    Test all of the corner cases inherent in the design.  This replicates
+    some of the other tests but it also serves to document the deliberate
+    design behaviours.
+    '''
+    # Check that we can create 24:00
+    assert HHMMTime('24:00').hours == 24
+    assert HHMMTime(24, 0).hours == 24
+    assert HHMMTime(HHMMTime.ONE_DAY).hours == 24
+    # Check that, if we try to create 24:01, we get 00:01
+    t = HHMMTime(HHMMTime.ONE_DAY+1)
+    assert t.hours == 0 and t.minutes == 1
+    # Check that 00:00 and 24:00 are distinct but equivalent
+    midnight0 = HHMMTime(0)
+    midnight24 = HHMMTime(HHMMTime.ONE_DAY)
+    assert midnight0 ==  midnight24
+    assert midnight0 < midnight24
+    assert midnight24 > midnight0
+    # The following tests all, somewhat counter intuitively, pass
+    # because midnight0 ==  midnight24
+    assert midnight0 >= midnight24
+    assert midnight0 <= midnight24
+    assert midnight24 >= midnight0
+    assert midnight24 <= midnight0
+    # Check that doing arithmetic around 00:00 and 24:00 will
+    # NOT get you 24:00.  The only way to get 24:00 is to create
+    # a 24:00 instance
+    t = HHMMTime(0, 1) - 1
+    assert t.hours == 0 and t.minutes == 0
+    t -= 1
+    assert t.hours == 23 and t.minutes == 59
+    t += 1
+    assert t.hours == 0 and t.minutes == 0
+
 def test_representation():
     '''
     Test the string representations
@@ -118,3 +153,16 @@ def test_representation():
     t = HHMMTime('11:45')
     assert str(t) == '11:45'
     assert repr(t) == "HHMMTime('11:45')"
+
+def test_validation():
+    '''
+    Test that the input validations work
+    '''
+    with pytest.raises(ValueError) as e:
+        t = HHMMTime('24.01')
+    with pytest.raises(ValueError) as e:
+        t = HHMMTime('24:01')
+    with pytest.raises(ValueError) as e:
+        t = HHMMTime(24, 1)
+    with pytest.raises(ValueError) as e:
+        t = HHMMTime(-1, 0)
