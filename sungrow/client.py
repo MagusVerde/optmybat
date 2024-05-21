@@ -55,7 +55,7 @@ class Client(object):
     '''
     def __init__(self, host=None, port=None):
         '''
-        Get some configuration and initiate a connection.
+        Initiate myself then connect.
         '''
         # Load the configurations
         config = self.config = Config.load()
@@ -80,7 +80,7 @@ class Client(object):
     # Basic methods
     def connect(self):
         '''
-        Connect via WebSocket to the dongle and fetch some information.
+        Connect via WebSocket to the dongle, authenticate and fetch some information.
 
         :returns: True if connection succeeded, False otherwise
         '''
@@ -97,6 +97,8 @@ class Client(object):
         # Get a new token
         result = self.call(service='connect')
         self.ws_token = result.token
+        # Need to authenticate immediately
+        self.authenticate(self.config.admin_user, self.config.admin_passwd)
         # Get some basic information
         self.logger.debug('Requesting Device Information')
         result = self.call(service='devicelist', type='0', is_check_token='0')
@@ -183,7 +185,7 @@ class Client(object):
         '''
         Login to the inverter.
         '''
-        result = self.call(service='login',passwd=password, username=username)
+        result = self.call(service='login', passwd=password, username=username)
         self.ws_token = result.token
 
     def getBatterySOC(self):

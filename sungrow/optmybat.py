@@ -34,10 +34,9 @@ def updateForceCharge(config):
     Check the targets against the current force charge state and,
     if needed, update the force charge state.
     '''
-    # Get connected and authenticate as a power user
+    # Get connected and authenticated as a power user
     logger = config.logger
     client = Client()
-    client.authenticate(config.admin_user, config.admin_passwd)
     # Get the current inverter and battery state
     soc = client.getBatterySOC()
     fc_target = client.getForceChargeStatus()

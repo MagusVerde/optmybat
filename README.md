@@ -41,6 +41,22 @@ hybrid inverter using a WiNet-S dongle but I make no gaurantees about compatibil
 I would however be interested in hearing from anybody who tries it out with other devices and possibly
 working with you to get your devices supported.
 
+## Firmware version and passwords
+
+With the release of the WNet-S firmware `WINET-SV200.001.00.P024`, Sungrow have finally made some small steps
+to securing the devices.  Most importanly, it no longer provides any unauthenticated access to the device and
+it also requires you to change the password before you can access the device.  As a result, you can no longer
+simply use the default login credentials.
+
+If optmybat shows a `401 - I18N_COMMON_INTER_ABNORMAL` error, you will need to go to the web interface, login
+and change the password:
+
+- Got to `http://<inverter>` where `<inverter>` is the name or IP address of the hybrid inverter
+- You will be prompted to login - use `admin` and either `pw8888` (the default password) or whatever
+  password you previously configured
+- You will then be prompted to enter a new password which must obey the rules shown in the dialogue
+- Update `config/config.yml` to use your new password
+
 ## Configuration
 
 Copy `config/sample-config.yml` to `config/config.yml` then edit `config.yml` to, at the least,
