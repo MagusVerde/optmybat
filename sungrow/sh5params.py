@@ -38,3 +38,14 @@ SH5_FORCE_CHARGE_PARAM_MAP = {
     'fc2_end_min': 33218,
     'fc2_soc': 33219,
 }
+
+#-----------------------------------------------------------------
+# Map Sungrow battery data names to our internal property names.
+# See client.getBatteryInfo().
+SH5_BATTERY_PROPERTY_MAP = {
+    "I18N_CONFIG_KEY_3907": "charge_kw",
+    "I18N_CONFIG_KEY_3921": "discharge_kw",
+    "I18N_COMMON_BATTERY_TEMPERATURE": "temperature",
+    "I18N_COMMON_BATTERY_SOC": "soc",
+    "I18N_COMMON_BATTARY_HEALTH": "health"
+}

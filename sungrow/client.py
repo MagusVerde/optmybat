@@ -25,9 +25,10 @@ from datetime import datetime
 import json
 from websocket import create_connection, WebSocketTimeoutException
 import requests
+import time
 
 from sungrow.parameters import Parameters
-from sungrow.sh5params import SH5_FORCE_CHARGE_PARAM_MAP
+from sungrow.sh5params import SH5_FORCE_CHARGE_PARAM_MAP, SH5_BATTERY_PROPERTY_MAP
 from sungrow.support import TimedTarget
 from util.classydict import ClassyDict
 from util.config import Config
@@ -76,6 +77,8 @@ class Client(object):
         if not self.connect():
             raise SungrowError(f"Can't connect to {self.sg_host}:{self.sg_ws_port}")
         self.logger.debug('Connected to %s:%d', self.sg_host, self.sg_ws_port)
+        # Prepare the battery info cache
+        self.battery = ClassyDict({'updated': 0})
 
     # Basic methods
     def connect(self):
@@ -188,16 +191,45 @@ class Client(object):
         result = self.call(service='login', passwd=password, username=username)
         self.ws_token = result.token
 
+    def getBatteryInfo(self):
+        '''
+        Get selected info about the battery's current state
+        '''
+        # Use the cached info if it's less than a few seconds old
+        now = time.time()
+        if self.battery.updated >= now - 3:
+            return self.battery
+        # Map Sungrow property names to battery properties
+        property_map = SH5_BATTERY_PROPERTY_MAP
+        values = self.call(service='real_battery', dev_id=self.dev_id).list
+        battery = ClassyDict({"updated": now})
+        for data in values:
+            name = data.get('data_name', None)
+            if name in property_map:
+                battery[property_map[name]] = data['data_value']
+        # And set missing propreties to '--'
+        for p in property_map.values():
+            if not p in battery:
+                battery[p] = '--'
+        self.battery = battery
+        self.logger.debug("battery details are %s", battery)
+        return battery
+
+    def getBatteryCharging(self):
+        '''
+        Return the charge/discharge rate.  Positive number means it's
+        charging, negative number means it's discharging.
+        '''
+        info = self.getBatteryInfo()
+        if info.charge_kw == '--' or info.discharge_kw == '--':
+            raise SungrowError(f"Current battery charge rate is undefined")
+        return float(info.charge_kw) - float(info.discharge_kw)
+
     def getBatterySOC(self):
         '''
         Return the current battery State of Charge
         '''
-        result = self.call(service='real_battery', dev_id=self.dev_id)
-        soc = '--'
-        for data in result.list:
-            if 'data_name' in data and data['data_name'] == 'I18N_COMMON_BATTERY_SOC':
-                soc = data['data_value']
-                break
+        soc = self.getBatteryInfo().soc
         if soc == '--':
             raise SungrowError(f"Current battery state of charge is undefined")
         self.logger.debug(f'Current SOC is {soc}%')

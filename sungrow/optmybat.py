@@ -39,6 +39,7 @@ def updateForceCharge(config):
     client = Client()
     # Get the current inverter and battery state
     soc = client.getBatterySOC()
+    charge = client.getBatteryCharging()
     fc_target = client.getForceChargeStatus()
     # Search for a target that is active now AND the battery level is lower
     # than the target.  If none, the target will be to disable force charging
@@ -69,7 +70,7 @@ def updateForceCharge(config):
         target.start = now - 1
     # Do the needful
     if target is None:
-        logger.info(f"Doing nothing - battery is {soc}%")
+        logger.info(f"Doing nothing - battery is {soc}%, charging at {charge}kW")
     else:
         if target.target == 0:
             logger.info(f'Disabling force charge - battery is {soc}%')
