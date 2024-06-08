@@ -24,8 +24,8 @@
 import sys
 import time
 
-from sungrow.client import Client, SungrowError
-from sungrow.support import TimedTarget
+from sungrow.services import Services
+from sungrow.support import SungrowError, TimedTarget
 from util.config import Config
 from util.hhmmtime import HHMMTime
 
@@ -36,7 +36,7 @@ def updateForceCharge(config):
     '''
     # Get connected and authenticated as a power user
     logger = config.logger
-    client = Client()
+    client = Services()
     # Get the current inverter and battery state
     soc = client.getBatterySOC()
     charge = client.getBatteryCharging()
@@ -70,7 +70,7 @@ def updateForceCharge(config):
         target.start = now - 1
     # Do the needful
     if target is None:
-        logger.info(f"Doing nothing - battery is {soc}%, charging at {charge}kW")
+        logger.info(f"Doing nothing - battery is {soc}%, {'discharging' if charge < 0 else 'charging'} at {charge}kW")
     else:
         if target.target == 0:
             logger.info(f'Disabling force charge - battery is {soc}%')

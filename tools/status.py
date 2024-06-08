@@ -2,8 +2,7 @@
 #
 # Copyright 2024 Magus Verde
 #
-# Tests of the extended client.  Note that some of these tests will fail
-# unless your configuration is correct.
+# Print out the status of the inverter.
 #
 # This file is part of Optmybat.
 #
@@ -22,37 +21,43 @@
 #
 # You can review the GNU Affero General Public License at <https://www.gnu.org/licenses/>.
 
-import pytest
+import sys
 import time
 
-from sungrow.client import Client
+from sungrow.services import Services
 from sungrow.support import SungrowError
 from util.config import Config
 
-def testBadHost():
+def status(config):
     '''
-    Test that things fail properly if given a bad host
+    Reset to known good state
     '''
-    with pytest.raises(SungrowError):
-        client = Client(host='127.0.0.1', port=54322)
-
-def testConnect():
-    '''
-    Test that we can properly init the client.
-    '''
-    client = Client()
-    assert client.ws_socket is not None
-    assert client.ws_token
-    r = client.get("/time/get")
-    assert r.time
+    # Get connected and authenticated as a power user
+    client = Services()
+    did_it = client.getStatus()
     client.close()
-    time.sleep(1)
-    assert client.ws_socket is None
-    assert not client.ws_token
+    return did_it
 
-def testGetInverTimeShift():
-    client = Client()
-    diff = client.getInverterTimeShift()
-    client.close()
-    time.sleep(1)
-    assert diff == 0
+def doWork():
+    '''
+    Wrap the real work in some exception handling
+    '''
+    did_it = False
+    config = Config.load()
+    logger = config.logger
+    try:
+        did_it = status(config)
+    except SungrowError as err:
+        logger.critical(err)
+    except Exception as err:
+        logger.critical('Unexpected %s exception', type(err).__name__, exc_info = True)
+    return did_it
+
+def main(args):
+    did_it = False
+    try:
+        did_it = doWork()
+    except KeyboardInterrupt:
+        pass
+    # Exit appropriately
+    sys.exit(0 if did_it else 1)

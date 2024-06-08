@@ -25,14 +25,13 @@
 import pytest
 import sys
 
-from scanner import scanner
+from tools import scanner
 
 def test_getNetwork():
     '''
     Simply checks that the call doesn't throw an exception
     '''
     networks = scanner.getNetworkDetails()
-    print(repr(networks))
 
 def test_tcpPing():
     '''

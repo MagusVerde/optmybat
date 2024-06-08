@@ -28,13 +28,20 @@ class Register(object):
     Represents a Inverter register (parameter) including code to parse
     and generate objects for communicating with the inverter.
     '''
-    def __init__(self, name):
+    def __init__(self, name, **properties):
         '''
         :param name: the register's simple name - must be unique and
-                     usable as a Python variable name
+                    usable as a Python variable name
+        param properties: an optional list of initial values passed as
+                    named arguments or a dereferenced dict
         '''
         self.name = name
-        self.initialised = False
+        if len(properties) > 0:
+            for n in ['id', 'addr', 'type', 'pname', 'value']:
+                setattr(self, n, properties.get(n, None))
+            self.initialised = True
+        else:
+            self.initialised = False
 
     def parse(self, props):
         '''
@@ -76,7 +83,7 @@ class Register(object):
 
 class Parameters(ClassyDict):
     '''
-    Provides a way mapping registers to and from the inverter in bulk
+    Provides a way of mapping registers to and from the inverter in bulk
     '''
 
     def __init__(self, params=None):
@@ -88,6 +95,14 @@ class Parameters(ClassyDict):
             self._params = params
         else:
             self._params = dict()
+
+    def loadRegisters(self, registers):
+        '''
+        Load myself from a list of Registers
+        '''
+        for (name, reg) in registers.items():
+            self._params[reg.addr] = reg
+            self[name] = reg
 
     def loadAddressMap(self, param_map):
         '''
@@ -115,7 +130,7 @@ class Parameters(ClassyDict):
         '''
         Dump the list of registers suitable for passing to the inverter.
         '''
-        return [v.dump() for (n, v) in self.items() if n != '_params']
+        return [reg.dump() for (name, reg) in self.items() if name != '_params' and reg.value is not None]
 
     def __len__(self):
         '''

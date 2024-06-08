@@ -25,6 +25,15 @@ from datetime import datetime
 from util.hhmmtime import HHMMTime
 
 #-----------------------------------------------------------------
+# The exception we raise
+class SungrowError(Exception):
+    '''
+    A class specific exception
+    '''
+    def __init__(self, msg):
+        super().__init__(msg)
+
+#-----------------------------------------------------------------
 # Support classes
 class SungrowTimer(object):
     '''

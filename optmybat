@@ -22,7 +22,7 @@
 # You can review the GNU Affero General Public License at <https://www.gnu.org/licenses/>.
 
 import argparse
-from scanner import scanner
+from tools import reset, scanner, status
 from sungrow import optmybat
 
 def parseArgs():
@@ -32,10 +32,17 @@ def parseArgs():
     :returns: parsed arguments
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--once',
+    choices = parser.add_mutually_exclusive_group()
+    choices.add_argument('--once',
         action='store_true',
         help='Only run once')
-    parser.add_argument('--scan',
+    choices.add_argument('--reset',
+        action='store_true',
+        help='Reset everything to the default, unmanaged state')
+    choices.add_argument('--status',
+        action='store_true',
+        help='Print out detailed status information')
+    choices.add_argument('--scan',
         action='store',
         metavar='NETWORK',
         default='unset',
@@ -47,8 +54,14 @@ def parseArgs():
 args = parseArgs()
 
 # Do the needful
-if args.scan != 'unset':
-    # The --scan argument was used
+if args.reset:
+    # Rset the inverter to a known state
+    reset.main(args)
+elif args.scan != 'unset':
+    # The --scan argument was used.  Scan for inverters
     scanner.main(args.scan)
+elif args.status:
+    # Dump the current inverter status
+    status.main(args)
 else:
     optmybat.main(args)

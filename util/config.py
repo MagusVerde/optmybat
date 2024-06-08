@@ -90,6 +90,8 @@ class Config(ClassyDict):
             # Merge in whatever was read from the config file
             for (name, value) in config._readConfig().items():
                 config[name] = value
+            # Allow the environment to override debuging
+            config.log_level = os.environ.get('LOG_LEVEL', config.log_level)
             # Set the logging level
             config._init_logger()
             # Set the time zone
