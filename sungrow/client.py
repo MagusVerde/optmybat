@@ -25,10 +25,7 @@ from datetime import datetime
 import json
 from websocket import create_connection, WebSocketTimeoutException
 import requests
-import time
 
-from sungrow.parameters import Parameters
-from sungrow.sh5params import SH5_FORCE_CHARGE_PARAM_MAP, SH5_BATTERY_PROPERTY_MAP
 from sungrow.support import SungrowError
 from util.classydict import ClassyDict
 from util.config import Config

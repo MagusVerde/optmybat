@@ -23,7 +23,6 @@ import os
 import pytest
 import time
 
-from sungrow.client import TimedTarget
 from util.config import Config
 
 def test_singleton():

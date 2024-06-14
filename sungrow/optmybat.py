@@ -24,26 +24,34 @@
 import sys
 import time
 
+from monitoring.monitoring import Monitoring
 from sungrow.services import Services
 from sungrow.support import SungrowError, TimedTarget
 from util.config import Config
 from util.hhmmtime import HHMMTime
 
-def updateForceCharge(config):
+#---------------------------------------------------------------------
+# Some globals because I'm lazy
+logger = None
+status_store = None
+
+def updateForceCharge():
     '''
     Check the targets against the current force charge state and,
     if needed, update the force charge state.
     '''
     # Get connected and authenticated as a power user
-    logger = config.logger
     client = Services()
+    # Save a row of status data if requested
+    if status_store is not None:
+        status_store.save(client.getInverterStats())
     # Get the current inverter and battery state
     soc = client.getBatterySOC()
     charge = client.getBatteryCharging()
     fc_target = client.getForceChargeStatus()
     # Search for a target that is active now AND the battery level is lower
     # than the target.  If none, the target will be to disable force charging
-    timings = TimedTarget.loadTargets(config.soc_min)
+    timings = TimedTarget.loadTargets(Config().load().soc_min)
     logger.debug("Targets are %s", timings)
     target = None
     now = HHMMTime.now()
@@ -85,10 +93,8 @@ def doWork():
     Wrap the real work in some exception handling
     '''
     did_it = False
-    config = Config.load()
-    logger = config.logger
     try:
-        did_it = updateForceCharge(config)
+        did_it = updateForceCharge()
     except SungrowError as err:
         logger.critical(err)
     except Exception as err:
@@ -96,6 +102,15 @@ def doWork():
     return did_it
 
 def main(args):
+    # Get some config
+    global logger
+    global status_store
+    config = Config.load()
+    logger = config.logger
+    status_store = None
+    if 'monitoring' in config:
+        status_store = Monitoring(config.monitoring, Services.getInverterStatNames())
+    # Do the work
     try:
         if args.once:
             did_it = doWork()

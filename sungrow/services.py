@@ -26,7 +26,7 @@ import time
 
 from sungrow.client import Client
 from sungrow.parameters import Parameters
-from sungrow.sh5params import SH5_FORCE_CHARGE_PARAM_MAP, SH5_BATTERY_PROPERTY_MAP, SH5_FORCE_CHARGE_PARAMS, SH5_REALTIME_POWER_MAP
+from sungrow.sh5params import SH5_FORCE_CHARGE_PARAM_MAP, SH5_FORCE_CHARGE_PARAMS, SH5_POWER_STATS_MAP, SH5_BATTERY_STATS_MAP
 from sungrow.support import SungrowError
 from util.classydict import ClassyDict
 from util.config import Config
@@ -38,6 +38,9 @@ SH5_ENABLE = 170
 SH5_DISABLE = 85
 SH5_WEEKDAY_ONLY = '0'
 SH5_ALL_DAYS = '1'
+
+# The inverter interface is slooow so we cache some responses for this many seconds
+CACHE_SECONDS = 5
 
 class Services(object):
     '''
@@ -53,8 +56,10 @@ class Services(object):
         self.logger = config.logger
         # Make the connection
         self.client = Client(host=host, port=port)
-        # Prepare the battery info cache
-        self.battery = ClassyDict({'updated': 0})
+        # Prepare the caches
+        self.battery = ClassyDict({'service': 'real_battery', 'property_map': SH5_BATTERY_STATS_MAP, 'updated': 0})
+        self.power = ClassyDict({'service': 'real', 'property_map': SH5_POWER_STATS_MAP, 'updated': 0})
+        self.force_charge = ClassyDict({'updated': 0})
 
     def close(self):
         '''
@@ -62,45 +67,65 @@ class Services(object):
         '''
         self.client.close()
 
-    def getBatteryInfo(self):
+    def getCachedParams(self, cache):
         '''
-        Get selected info about the battery's current state
+        Cache and return some information from the inverter
         '''
         # Use the cached info if it's less than a few seconds old
         now = time.time()
-        if self.battery.updated >= now - 3:
-            return self.battery
-        # Map Sungrow property names to battery properties
-        property_map = SH5_BATTERY_PROPERTY_MAP
-        values = self.client.call(service='real_battery', dev_id=self.client.inverter_id).list
-        battery = ClassyDict({"updated": now})
+        if cache.updated >= now - CACHE_SECONDS:
+            return cache
+        # Refresh the cache
+        values = self.client.call(service=cache.service, dev_id=self.client.inverter_id).list
+        property_map = cache.property_map
+        new = dict()
         for data in values:
-            name = data.get('data_name', None)
+            name = data['data_name']
             if name in property_map:
-                battery[property_map[name]] = data['data_value']
-        # And set missing propreties to '--'
+                new[property_map[name]] = data['data_value']
+        # And set missing properties to '--'
         for p in property_map.values():
-            if not p in battery:
-                battery[p] = '--'
-        self.battery = battery
-        self.logger.debug("battery details are %s", battery)
-        return battery
+            if not p in new:
+                new[p] = '--'
+        cache.update(new)
+        cache.updated = now
+        self.logger.debug("cached %s details are %s", cache.service, cache)
+        return cache
+
+    def getInverterStats(self):
+        '''
+        Get an accumulated set of status information from the inverter
+        '''
+        stats = ClassyDict()
+        stats.update(self.getCachedParams(self.power))
+        stats.update(self.getCachedParams(self.battery))
+        stats['force_charge_status'] = str(self.getForceChargeStatus())
+        return stats
+
+    @classmethod
+    def getInverterStatNames(cls):
+        '''
+        Get an accumulated set of status information from the inverter
+        '''
+        names = list(SH5_BATTERY_STATS_MAP.values()) + list(SH5_POWER_STATS_MAP.values())
+        names.append('force_charge_status')
+        return sorted(names)
 
     def getBatteryCharging(self):
         '''
         Return the charge/discharge rate.  Positive number means it's
         charging, negative number means it's discharging.
         '''
-        info = self.getBatteryInfo()
-        if info.charge_kw == '--' or info.discharge_kw == '--':
+        info = self.getInverterStats()
+        if info.battery_charging_power == '--' or info.battery_discharging_power == '--':
             raise SungrowError(f"Current battery charge rate is undefined")
-        return float(info.charge_kw) - float(info.discharge_kw)
+        return float(info.battery_charging_power) - float(info.battery_discharging_power)
 
     def getBatterySOC(self):
         '''
         Return the current battery State of Charge
         '''
-        soc = self.getBatteryInfo().soc
+        soc = self.getInverterStats().battery_level_soc
         if soc == '--':
             raise SungrowError(f"Current battery state of charge is undefined")
         self.logger.debug(f'Current SOC is {soc}%')
@@ -113,10 +138,13 @@ class Services(object):
 
         Note: assumes that force charging is applied every day
         '''
-        # use the already gotten value
-        if not hasattr(self, 'forceChargeParams'):
-            self.forceChargeParams = Parameters().loadAddressMap(SH5_FORCE_CHARGE_PARAM_MAP)
-        fcp = self.forceChargeParams
+        # Use the cached info if it's less than a few seconds old
+        now = time.time()
+        fcp = self.force_charge
+        if fcp.updated >= now - CACHE_SECONDS:
+            return fcp.status
+        # Read the force charg status from the inverter
+        fcp = self.force_charge = Parameters().loadAddressMap(SH5_FORCE_CHARGE_PARAM_MAP)
         # Get the energy management parameters
         r = self.client.get('/device/getParam', params={'dev_id':self.client.inverter_id, 'dev_type':self.client.inverter_type, 'dev_code':{self.client.inverter_code},'type':9})
         # Update our internal state
@@ -125,15 +153,19 @@ class Services(object):
         fcp.parse(r.list)
         if not 'fc_enable' in fcp:
             raise SungrowError("Unexpected getParam response - {r}")
+        # Update the cache timestamp
+        fcp.updated = now
+        fcp.status = 0.0  # assume it's disabled
         # Is it even enabled
         if int(fcp.fc_enable.value) != SH5_ENABLE:
-            # Force charging is not enableed
-            return 0.0
+            # Force charging is not enabled
+            elf.logger.debug("Force charge is not enabled")
+            return fcp.status
         # target soc of 0 means force charging is disabled
         if int(fcp.fc1_soc.value) == 0 and int(fcp.fc2_soc.value) == 0:
             # Targets are 0
             self.logger.debug("Force charge is set to 0% at the inverter")
-            return 0.0
+            return fcp.status
         # Get the time difference between this machine and the inverter
         timeslip = self.getInverterTimeShift()
         # For convenience, get easier to handle start and end times
@@ -146,11 +178,11 @@ class Services(object):
         self.logger.debug(f"Checking {fc1_start}-{fc1_end} and {fc2_start}-{fc2_end} against {now}")
         if now >= fc1_start and now <= fc1_end:
             # In the the first time range
-            return float(fcp.fc1_soc.value)
-        if now >= fc2_start and now <= fc2_end:
+            fcp.status = float(fcp.fc1_soc.value)
+        elif now >= fc2_start and now <= fc2_end:
             # In the the second time range
-            return float(fcp.fc2_soc.value)
-        return 0.0
+            fcp.status = float(fcp.fc2_soc.value)
+        return fcp.status
 
     def getInverterTimeShift(self):
         '''
@@ -179,17 +211,6 @@ class Services(object):
                 self.sg_timeslip = 0
             self.logger.debug('Time difference is %d minutes', self.sg_timeslip)
         return self.sg_timeslip
-
-    def getPowerStats(self):
-        # Map Sungrow property names to power stats
-        power_map = SH5_REALTIME_POWER_MAP
-        values = self.client.call(service='real', dev_id=self.client.inverter_id).list
-        stats = ClassyDict()
-        for data in values:
-            name = data.get('data_name', None)
-            if name in power_map:
-                stats[power_map[name]] = data['data_value']
-        return stats
 
     def getStatus(self):
         '''
@@ -272,4 +293,3 @@ class Services(object):
         if not self.client.setParams(fcp):
             raise SungrowError(f"Failed to set forced charge to minimum {target}")
         self.logger.debug(f"Set force charge to minimum {target}")
-        

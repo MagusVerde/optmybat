@@ -111,8 +111,8 @@ class HHMMTime(object):
     def __eq__(self, other):
         # Note that 24:00 == 00:00 so we need to explicitly handle that
         assert isinstance(other, HHMMTime)
-        sv = 0 if self.value == HHMMTime.ONE_DAY else self.value 
-        ov = 0 if other.value == HHMMTime.ONE_DAY else other.value 
+        sv = 0 if self.value == HHMMTime.ONE_DAY else self.value
+        ov = 0 if other.value == HHMMTime.ONE_DAY else other.value
         return sv == ov
 
     def __lt__(self, other):

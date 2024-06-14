@@ -47,13 +47,14 @@ class ClassyDict(dict):
         '''
         Return a field element as if it was an attribute.
         '''
-        if not super().__contains__(name):
+        try:
+            return self.__getitem__(name)
+        except KeyError:
             raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
-        return self.__getitem__(name)
 
     def __setattr__(self, name, value):
         '''
-        Allow for updating the UserDict properties
+        Update/add a field to the underlying dict
         '''
         self.__setitem__(name, value)
 

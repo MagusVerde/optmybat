@@ -27,7 +27,6 @@ import time
 
 from sungrow.client import Client
 from sungrow.support import SungrowError
-from util.config import Config
 
 def testBadHost():
     '''
@@ -49,10 +48,3 @@ def testConnect():
     time.sleep(1)
     assert client.ws_socket is None
     assert not client.ws_token
-
-def testGetInverTimeShift():
-    client = Client()
-    diff = client.getInverterTimeShift()
-    client.close()
-    time.sleep(1)
-    assert diff == 0

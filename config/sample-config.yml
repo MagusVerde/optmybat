@@ -26,6 +26,19 @@ admin_passwd: 'pw8888'
 poll_interval: 30
 
 #----------------------------------------------------------
+# Ask optmybat to save the inverter and battery status to a monitoring
+# system.  Note that you can have multiple monitoring engines, including
+# multiple instances of the same engine targetting a different end point.
+# The supported monitoring systems are all listed below:
+monitoring:
+  # Save everything to a CSV
+  - engine: csv
+    # A unique name for this store (can have mulitple instances of the same engine)
+    name: status.csv
+    # The file which will hold the monitoring
+    dest: config/status.csv
+
+#----------------------------------------------------------
 # Optmybat automatically adjusts for differences between the inverter's
 # time and it's time but, assuming that you're optimising time of day
 # electricity charges, you need optmybat's timing to be accurate.  If
