@@ -65,8 +65,6 @@ class Client(object):
         if not self.connect():
             raise SungrowError(f"Can't connect to {self.sg_host}:{self.sg_ws_port}")
         self.logger.debug('Connected to %s:%d', self.sg_host, self.sg_ws_port)
-        # Prepare the battery info cache
-        self.battery = ClassyDict({'updated': 0})
 
     # Basic methods
     def connect(self):
@@ -194,6 +192,7 @@ class Client(object):
 
         :returns: True if the setting worked
         '''
+        print(params.dump())
         result = self.call(
             service='param',
             dev_code=self.inverter_code,

@@ -130,7 +130,7 @@ class Parameters(ClassyDict):
         '''
         Dump the list of registers suitable for passing to the inverter.
         '''
-        return [reg.dump() for (name, reg) in self.items() if name != '_params' and reg.value is not None]
+        return [reg.dump() for (name, reg) in self.items() if isinstance(reg, Register) and reg.value is not None]
 
     def __len__(self):
         '''

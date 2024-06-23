@@ -242,10 +242,9 @@ class Services(object):
         :param target: an TimedTarget specifying the start and end times and
                     the target battery level
         '''
-        # Need to have already loaded the params to be able to set them
-        if not hasattr(self, 'forceChargeParams'):
-            self.getForceChargeStatus()
-        fcp = self.forceChargeParams
+        # Load the status
+        self.getForceChargeStatus()
+        fcp = self.force_charge
         # Make sure we have the parameters
         if not 'fc1_start_hr' in fcp:
             # Must be enabled to get all of the params
@@ -292,4 +291,6 @@ class Services(object):
         # Apply the new settings
         if not self.client.setParams(fcp):
             raise SungrowError(f"Failed to set forced charge to minimum {target}")
+        # Make sure that the parameters are read again next time
+        fcp.updated = 0
         self.logger.debug(f"Set force charge to minimum {target}")
