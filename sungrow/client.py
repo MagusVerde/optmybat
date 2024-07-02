@@ -107,7 +107,7 @@ class Client(object):
                 self.battery_model = d['dev_model']
                 self.battery_type = str(d['dev_type'])
         if self.inverter_id is None:
-            raise SungrowError(f'{self.sg_host} ({result.list[0]['dev_model']}) is not a hybrid inverter')
+            raise SungrowError(f"{self.sg_host} ({result.list[0]['dev_model']}) is not a hybrid inverter")
         return True
 
     def close(self):
@@ -192,7 +192,6 @@ class Client(object):
 
         :returns: True if the setting worked
         '''
-        print(params.dump())
         result = self.call(
             service='param',
             dev_code=self.inverter_code,
@@ -225,5 +224,5 @@ class Client(object):
         if 'result_code' not in r or 'result_msg' not in r or 'result_data' not in r:
             raise SungrowError(f'Unexpected response - {r}')
         if r['result_code'] != 1:
-            raise SungrowError(f'Received error response code {r['result_code']} - {r['result_msg']}')
+            raise SungrowError(f'Received error response code {r["result_code"]} - {r["result_msg"]}')
         return ClassyDict(r['result_data'])
