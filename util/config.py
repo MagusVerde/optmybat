@@ -118,7 +118,7 @@ class Config(ClassyDict):
 
         :returns: True if the file has changed
         '''
-        return self.config_path != '' and (self.config_mtime == 0 or self.config_mtime < os.stat(self.config_path).st_mtime)
+        return self.config_path != '' and (self.config_mtime == 0 or self.config_mtime != os.stat(self.config_path).st_mtime)
 
     def _readConfig(self):
         '''
