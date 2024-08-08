@@ -159,7 +159,7 @@ class Services(object):
         # Is it even enabled
         if int(fcp.fc_enable.value) != SH5_ENABLE:
             # Force charging is not enabled
-            elf.logger.debug("Force charge is not enabled")
+            self.logger.debug("Force charge is not enabled")
             return fcp.status
         # target soc of 0 means force charging is disabled
         if int(fcp.fc1_soc.value) == 0 and int(fcp.fc2_soc.value) == 0:
