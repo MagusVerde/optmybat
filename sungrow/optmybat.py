@@ -39,6 +39,10 @@ def updateForceCharge():
     '''
     Check the targets against the current force charge state and,
     if needed, update the force charge state.
+
+    Note - we deliberately get a new HTTP connection every time because
+    the dongle doesn't like long running connections.  The aim is to get
+    in and get out as quickly as possible.
     '''
     # Get connected and authenticated as a power user
     client = Services()

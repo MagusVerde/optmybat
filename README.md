@@ -11,7 +11,7 @@ The provided sample config (`config/sample-config.yml`) explains the logic in so
 
 ## The big picture
 
-Sungrow Hybrid Inverters with the WiNet-S dongle provides a web interface at http://<your.inverter.host.here>.
+Sungrow Hybrid Inverters with the WiNet-S dongle provide a web interface at http://<your.inverter.host.here>.
 Using this web interface, you can login as an administrator to view and edit various configuration parameters
 (aka registers).
 One set of those parameters (`Energy Management Parameters`) controls force charging and,

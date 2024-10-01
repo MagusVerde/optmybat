@@ -1,7 +1,8 @@
-config.yml
 *.dump
 __pycache__/
 .pytest_cache
 .*.sw?
 .venv
 .vscode
+config.yml
+status.csv

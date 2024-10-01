@@ -32,23 +32,41 @@ class ClassyDict(dict):
     Not recommended for dicts where the keys are not mappable to a varable
     name.  The class will work correctly with keys like True, int(1), 'a-b',
     [1, 2, 3] but, of course, you can't access those elements as variables.
+
+    ClassyDict handles "hidden" variables (those starting with an '_'), hiding them
+    from the 'in' operator and the keys(), items(), len(), repr() and str()
+    methods.  This means that they can only be seen and accessed by direct
+    reference - either ClassyDict()['_name'] or ClassyDict()._name.  To see what
+    happens with private items, have a look at test_ClassyDict.testPrivateAttribues().
     '''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Make all private items into private attributes
+        for k in list(super().keys()):
+            if k[0] == '_':
+                v = super().__getitem__(k)
+                super().__delitem__(k)
+                super().__setattr__(k, v)
 
     def __delattr__(self, name):
         '''
         Delete the item from my data
         '''
-        super().__delitem__(name)
+        if name[0] == '_':
+            super().__delattr__(name)
+        else:
+            super().__delitem__(name)
 
     def __getattr__(self, name):
         '''
         Return a field element as if it was an attribute.
         '''
         try:
-            return self.__getitem__(name)
+            if name[0] == '_':
+                return super().__getattribute__(name)
+            else:
+                return super().__getitem__(name)
         except KeyError:
             raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
 
@@ -56,7 +74,28 @@ class ClassyDict(dict):
         '''
         Update/add a field to the underlying dict
         '''
-        self.__setitem__(name, value)
+        if name[0] == '_':
+            super().__setattr__(name, value)
+        else:
+            super().__setitem__(name, value)
+
+    def __delitem__(self, name):
+        try:
+            return self.__delattr__(name)
+        except AttributeError:
+            raise KeyError(name)
+
+    def __getitem__(self, name):
+        try:
+            return self.__getattr__(name)
+        except AttributeError:
+            raise KeyError(name)
+
+    def __setitem__(self, name, value):
+        return self.__setattr__(name, value)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({super().__repr__()})"
+
+    def __str__(self):
+        return super().__repr__()

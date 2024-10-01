@@ -53,6 +53,12 @@ def test_exceptions():
     with pytest.raises(AttributeError) as e:
         print(empty.a)
 
+def test_contains():
+    d = ClassyDict()
+    d['a'] = 1
+    assert 'a' in d
+    assert 'b' not in d
+
 def test_hasattr():
     d = ClassyDict()
     d['a'] = 1
@@ -83,3 +89,33 @@ def test_jsonDump():
     base = {'a': 1, 'b': 2}
     d = ClassyDict(base)
     assert json.dumps(d) == json.dumps(base)
+
+def testPrivateAttribues():
+    # Populate with some public and private items
+    base = {'a': 1, '_private': 3}
+    obj = ClassyDict(base)
+    obj._secret = 'ssshhh'
+    obj['__super_secret'] = 'nope'
+    # Check that the private items aren't included in len(), etc
+    assert len(obj) == 1
+    assert repr(obj) == "ClassyDict({'a': 1})"
+    assert str(obj) == "{'a': 1}"
+    assert list(obj.keys()) == ['a']
+    assert list(obj.items()) == [('a', 1)]
+    assert '_private' not in obj
+    # Check that the private variables are accessable
+    assert obj._private == 3
+    assert obj['_private'] == 3
+    assert obj._secret == 'ssshhh'
+    assert obj['_secret'] == 'ssshhh'
+    assert obj.__super_secret == 'nope'
+    assert obj['__super_secret'] == 'nope'
+    # Check that private variables can be deleted
+    assert hasattr(obj, '_secret')
+    del(obj._secret)
+    assert not hasattr(obj, '_secret')
+    assert obj.get('_secret', None) == None
+    assert hasattr(obj, '_private')
+    del(obj['_private'])
+    assert not hasattr(obj, '_private')
+    assert obj.get('_private', None) == None
