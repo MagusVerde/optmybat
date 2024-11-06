@@ -24,8 +24,9 @@
 from datetime import datetime
 import json
 import ssl
-import websocket
 import requests
+import urllib3
+import websocket
 
 from sungrow.support import SungrowError
 from util.classydict import ClassyDict
@@ -47,6 +48,8 @@ class Client(object):
         '''
         Initiate myself then connect.
         '''
+        # Suppress the insecure request warning
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         # Load the configurations
         config = self.config = Config.load()
         # Configure self.logger
