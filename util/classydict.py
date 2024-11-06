@@ -25,13 +25,13 @@
 class ClassyDict(dict):
     '''
     A dict wrapper that allows the elements of the dictionary to be accessed
-    as if they were object properties (e.g. you can use both d.var and d['var']).
+    as if they were object attributes (e.g. you can use both d.var and d['var']).
     This looks nicer if you're dealing with a dict that has a known, regular
     structure where the keys are strings that can be used as Python variable names.
 
     Not recommended for dicts where the keys are not mappable to a varable
-    name.  The class will work correctly with keys like True, int(1), 'a-b',
-    [1, 2, 3] but, of course, you can't access those elements as variables.
+    name.  The class will work correctly with any hashable key like int(1), 'a-b',
+    (1, 2) but, of course, you can't access those elements as variables.
 
     ClassyDict handles "hidden" variables (those starting with an '_'), hiding them
     from the 'in' operator and the keys(), items(), len(), repr() and str()
@@ -43,17 +43,17 @@ class ClassyDict(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make all private items into private attributes
-        for k in list(super().keys()):
-            if k[0] == '_':
-                v = super().__getitem__(k)
-                super().__delitem__(k)
-                super().__setattr__(k, v)
+        for name in list(super().keys()):
+            if isinstance(name, str) and name[0] == '_':
+                v = super().__getitem__(name)
+                super().__delitem__(name)
+                super().__setattr__(name, v)
 
     def __delattr__(self, name):
         '''
         Delete the item from my data
         '''
-        if name[0] == '_':
+        if isinstance(name, str) and name[0] == '_':
             super().__delattr__(name)
         else:
             super().__delitem__(name)
@@ -63,7 +63,7 @@ class ClassyDict(dict):
         Return a field element as if it was an attribute.
         '''
         try:
-            if name[0] == '_':
+            if isinstance(name, str) and name[0] == '_':
                 return super().__getattribute__(name)
             else:
                 return super().__getitem__(name)
@@ -74,7 +74,7 @@ class ClassyDict(dict):
         '''
         Update/add a field to the underlying dict
         '''
-        if name[0] == '_':
+        if isinstance(name, str) and name[0] == '_':
             super().__setattr__(name, value)
         else:
             super().__setitem__(name, value)

@@ -23,7 +23,8 @@
 
 from datetime import datetime
 import json
-from websocket import create_connection, WebSocketTimeoutException
+import ssl
+import websocket
 import requests
 
 from sungrow.support import SungrowError
@@ -58,7 +59,7 @@ class Client(object):
         self.sg_host = host
         self.sg_ws_port = port
         self.timeout = config.timeout
-        self.ws_endpoint = f'ws://{self.sg_host}:{self.sg_ws_port}/ws/home/overview'
+        self.ws_endpoint = f'wss://{self.sg_host}/ws/home/overview'
         # Try to establish a connection immediately
         self.ws_socket = None
         self.ws_token = ''
@@ -78,7 +79,8 @@ class Client(object):
             self.close()
         # Try to open the connection
         try:
-            self.ws_socket = create_connection(self.ws_endpoint, timeout=self.timeout)
+            self.ws_socket = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
+            self.ws_socket.connect(self.ws_endpoint, timeout=self.timeout)
         except Exception as err:
             self.logger.debug('Websocket connection to %s failed - %s', self.ws_endpoint, err)
             return False
@@ -141,7 +143,7 @@ class Client(object):
             self.logger.debug('Calling %s', json.dumps(kwargs))
             self.ws_socket.send(json.dumps(kwargs))
             r = self.ws_socket.recv()
-        except WebSocketTimeoutException:
+        except websocket.WebSocketTimeoutException:
             raise SungrowError(f"Timeout calling {kwargs['service']}")
         # Convert the reponse
         rdata = self._parse_response(r)
@@ -163,15 +165,18 @@ class Client(object):
         # And a timeout arg
         if 'timeout' not in kwargs:
             kwargs['timeout'] = self.timeout
+        # And ignore the SSL certificate
+        if 'verify' not in kwargs:
+            kwargs['verify'] = False
         # Add the token to the params
         kwargs['params']['token'] = self.ws_token
-        self.logger.debug('GET http://%s%s', self.sg_host, uri)
+        self.logger.debug('GET https://%s%s', self.sg_host, uri)
         try:
-            r = requests.get(f'http://{self.sg_host}{uri}', **kwargs)
+            r = requests.get(f'https://{self.sg_host}{uri}', **kwargs)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-            raise SungrowError(f"Time out while trying to access http://{self.sg_host}{uri}")
+            raise SungrowError(f"Time out while trying to access https://{self.sg_host}{uri}")
         if r.status_code != 200:
-            raise SungrowError(f'Failed to access http://{self.sg_host}{uri} - {r.status_code} - {r.text}')
+            raise SungrowError(f'Failed to access https://{self.sg_host}{uri} - {r.status_code} - {r.text}')
         # Convert the reponse
         rdata = self._parse_response(r.text)
         self.logger.debug("Response %s", rdata)

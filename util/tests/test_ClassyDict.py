@@ -43,6 +43,20 @@ def test_initialiser():
     assert d.a == 1
     assert d.b == 2
 
+def test_illegalAttributeNames():
+    '''
+    Test that weird keys work for the dict.
+    '''
+    t = (1, 2)
+    obj = ClassyDict({1: 'one', '.': 'dot', ',': 'comma', t: 'a tupple'})
+    assert len(obj) == 4
+    assert obj[1] == 'one'
+    assert obj[t] == 'a tupple'
+    assert ',' in obj
+    del(obj[','])
+    assert ',' not in obj
+    assert getattr(obj, '.') == 'dot'
+
 def test_exceptions():
     '''
     Test that we get the expected exceptions
@@ -90,7 +104,7 @@ def test_jsonDump():
     d = ClassyDict(base)
     assert json.dumps(d) == json.dumps(base)
 
-def testPrivateAttribues():
+def test_privateAttribues():
     # Populate with some public and private items
     base = {'a': 1, '_private': 3}
     obj = ClassyDict(base)
@@ -110,7 +124,7 @@ def testPrivateAttribues():
     assert obj['_secret'] == 'ssshhh'
     assert obj.__super_secret == 'nope'
     assert obj['__super_secret'] == 'nope'
-    # Check that private variables can be deleted
+    # Check that the private variables can be deleted
     assert hasattr(obj, '_secret')
     del(obj._secret)
     assert not hasattr(obj, '_secret')

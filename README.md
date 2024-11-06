@@ -11,7 +11,7 @@ The provided sample config (`config/sample-config.yml`) explains the logic in so
 
 ## The big picture
 
-Sungrow Hybrid Inverters with the WiNet-S dongle provide a web interface at http://<your.inverter.host.here>.
+Sungrow Hybrid Inverters with the WiNet-S dongle provide a web interface at https://<your.inverter.host.here>.
 Using this web interface, you can login as an administrator to view and edit various configuration parameters
 (aka registers).
 One set of those parameters (`Energy Management Parameters`) controls force charging and,
@@ -29,7 +29,7 @@ Optmybat uses the same calls (but not the actual web interface) to manipulate th
 
 ## Compatibility
 
-Optmybat was developed by reverse engineering the WiNet-S web interface (http://<your.inverter.host.here>)
+Optmybat was developed by reverse engineering the WiNet-S web interface (https://<your.inverter.host.here>)
 against the following devices:
 
 - A Sungrow SH5.0RS hybrid inverter
@@ -51,7 +51,7 @@ simply use the default login credentials.
 If optmybat shows a `401 - I18N_COMMON_INTER_ABNORMAL` error, you will need to go to the web interface, login
 and change the password:
 
-- Got to `http://<inverter>` where `<inverter>` is the name or IP address of the hybrid inverter
+- Go to `https://<inverter>` where `<inverter>` is the name or IP address of the hybrid inverter
 - You will be prompted to login - use `admin` and either `pw8888` (the default password) or whatever
   password you previously configured
 - You will then be prompted to enter a new password which must obey the rules shown in the dialogue
