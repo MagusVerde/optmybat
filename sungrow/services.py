@@ -46,7 +46,7 @@ class Services(object):
     '''
     A simple client for talking to a Sungrow inverter via a WiNet-S dongle.
     '''
-    def __init__(self, host=None, port=None):
+    def __init__(self, host=None):
         '''
         Initiate myself then connect.
         '''
@@ -55,7 +55,7 @@ class Services(object):
         # Configure self.logger
         self.logger = config.logger
         # Make the connection
-        self.client = Client(host=host, port=port)
+        self.client = Client(host=host)
         # Prepare the caches
         self.battery = ClassyDict({'service': 'real_battery', 'property_map': SH5_BATTERY_STATS_MAP, 'updated': 0})
         self.power = ClassyDict({'service': 'real', 'property_map': SH5_POWER_STATS_MAP, 'updated': 0})

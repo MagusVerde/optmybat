@@ -13,8 +13,6 @@ log_level: INFO
 # The host name or IP address of the inverter.  If you don't
 # know that yet, run `optmybat --scan` to find it.
 sg_host: 'inverter'
-# The websocket port on the inverter (defaults to 8082)
-sg_ws_port: 8082
 # The inverter's admin user name and password.  Sungrow defaults
 # are admin/pw8888 or user/pw1111.  You can use the WiNet-S
 # web interface to change it if you're paranoid.

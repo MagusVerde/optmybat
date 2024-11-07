@@ -68,7 +68,7 @@ class HHMMTime(object):
         '''
         Create a new HHMMTime given either a string of the format hh:mm
         or a number.  Raises a ValueError if the string is badly formatted
-        or out of range.
+        or the value is out of range.
         '''
         if minutes is not None:
             hh = int(value)
@@ -129,7 +129,7 @@ class HHMMTime(object):
     def __ge__(self, other):
         return self > other or self == other
 
-    # and string repre4sentations
+    # and string representations
     def __repr__(self):
         return f"HHMMTime('{self.hours:02d}:{self.minutes:02d}')"
 

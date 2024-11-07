@@ -33,7 +33,7 @@ def testBadHost():
     Test that things fail properly if given a bad host
     '''
     with pytest.raises(SungrowError):
-        client = Client(host='127.0.0.1', port=54322)
+        client = Client(host='127.0.0.1')
 
 def testConnect():
     '''

@@ -44,7 +44,7 @@ class Client(object):
     '''
     A simple client for talking to a Sungrow inverter via a WiNet-S dongle.
     '''
-    def __init__(self, host=None, port=None):
+    def __init__(self, host=None):
         '''
         Initiate myself then connect.
         '''
@@ -57,18 +57,15 @@ class Client(object):
         # Configure the websocket connection basics
         if host is None:
             host = config.sg_host
-        if port is None:
-            port = config.sg_ws_port
         self.sg_host = host
-        self.sg_ws_port = port
         self.timeout = config.timeout
         self.ws_endpoint = f'wss://{self.sg_host}/ws/home/overview'
         # Try to establish a connection immediately
         self.ws_socket = None
         self.ws_token = ''
         if not self.connect():
-            raise SungrowError(f"Can't connect to {self.sg_host}:{self.sg_ws_port}")
-        self.logger.debug('Connected to %s:%d', self.sg_host, self.sg_ws_port)
+            raise SungrowError(f"Can't connect to {self.sg_host}")
+        self.logger.debug('Connected to %s', self.sg_host)
 
     # Basic methods
     def connect(self):
@@ -125,7 +122,7 @@ class Client(object):
             self.ws_socket.close()
             self.ws_socket = None
             self.ws_token = ''
-            self.logger.debug('Closed websocket connection to %s:%s', {self.sg_host}, {self.sg_ws_port})
+            self.logger.debug('Closed websocket connection to %s', {self.sg_host})
             return True
         return False
 

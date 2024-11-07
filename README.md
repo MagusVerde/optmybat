@@ -22,8 +22,9 @@ using the force charging parameters, you can:
 - if enabled, define up to two time ranges and target battery state of charges (SOCs)
 - if the time on the inverter is in one of the specified ranges, it will:
   - disable discharging - the battery __WILL NOT__ be used even if it has more charge than the target
-  - it will draw solar and/or mains power to charge the battery to the target SOC (actually a little below the target)
-  - if there is excess solar, it will charge the battery even if the battery is already charged to more than the target
+  - it will draw solar and/or mains power to charge the battery to the target SOC
+  - if there is excess solar, the solar will charge the battery even if the battery is already charged
+    to more than the target
 
 Optmybat uses the same calls (but not the actual web interface) to manipulate the force charging parameters.
 
@@ -41,7 +42,9 @@ hybrid inverter using a WiNet-S dongle but I make no gaurantees about compatibil
 I would however be interested in hearing from anybody who tries it out with other devices and possibly
 working with you to get your devices supported.
 
-## Firmware version and passwords
+## Firmware versions
+
+### WINET-SV200.001.00.P024
 
 With the release of the WNet-S firmware `WINET-SV200.001.00.P024`, Sungrow have finally made some small steps
 to securing the devices.  Most importanly, it no longer provides any unauthenticated access to the device and
@@ -51,11 +54,80 @@ simply use the default login credentials.
 If optmybat shows a `401 - I18N_COMMON_INTER_ABNORMAL` error, you will need to go to the web interface, login
 and change the password:
 
-- Go to `https://<inverter>` where `<inverter>` is the name or IP address of the hybrid inverter
+- Go to `http://<inverter>` where `<inverter>` is the name or IP address of the hybrid inverter
 - You will be prompted to login - use `admin` and either `pw8888` (the default password) or whatever
   password you previously configured
 - You will then be prompted to enter a new password which must obey the rules shown in the dialogue
 - Update `config/config.yml` to use your new password
+
+### WINET-SV200.001.00.P026
+
+With the release of the WNet-S firmware `WINET-SV200.001.00.P026`, Sungrow have further tightened up the security
+of the devices by using TLS for all communications.  Instead of using port 80 for the UI and port 8082 for
+websocket, all traffic must now use port 443.
+
+It appears that they are using the same, self-signed certificate for all WiNet-S dongles:
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            69:e8:fb:aa:0c:31:f9:0d:60:42:9a:14:2c:55:52:80:c7:87:4c:fa
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=CN, ST=AnHui, L=HeFei, OU=Sungrow, CN=Sungrow
+        Validity
+            Not Before: Mar 30 10:16:35 2023 GMT
+            Not After : Mar 27 10:16:35 2033 GMT
+        Subject: C=CN, ST=AnHui, L=HeFei, OU=Sungrow, CN=Sungrow
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:f5:a9:50:ae:56:15:4e:a5:67:68:85:87:8d:dd:
+                    4b:c9:4b:5a:fc:67:fd:b9:a5:3c:40:b3:e0:2b:3f:
+                    b1:1c:5a:d9:ae:65:92:c5:ce:00:3e:97:c4:d2:11:
+                    82:72:8c:ea:e5:f3:b8:79:29:28:2b:85:0c:72:d7:
+                    9b:3d:62:58:82:40:a4:b5:aa:4f:be:43:8a:ef:7c:
+                    2c:b5:77:d1:c6:4b:68:0f:ad:6d:06:07:ff:ee:33:
+                    5d:fb:73:18:a5:37:7e:ee:ad:35:cc:9b:02:3c:95:
+                    02:2c:a7:d0:73:1a:0c:cf:15:98:ca:9c:ad:d9:8c:
+                    70:2f:78:ab:6a:8d:df:23:30:52:ed:6a:7b:ef:34:
+                    22:4a:fb:2f:c2:fb:9e:e6:76:67:92:5a:5a:97:65:
+                    06:59:83:a0:cd:2e:58:b6:56:c7:60:f1:0d:c1:4f:
+                    23:27:d8:3b:cc:be:48:f6:80:e7:75:63:24:b5:1c:
+                    65:7c:fa:f1:eb:e0:7e:1e:f3:21:b1:48:bc:10:46:
+                    b2:b5:f6:00:8f:03:1c:63:04:78:16:99:e7:1d:2c:
+                    2f:5c:c3:d4:47:a0:67:0d:ad:15:42:40:7e:d4:42:
+                    f7:05:8f:7b:aa:15:ea:18:82:39:da:a6:19:dd:4f:
+                    69:02:aa:be:0e:b2:9e:ef:a6:f0:73:78:f6:89:42:
+                    f7:83
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Non Repudiation, Key Encipherment
+            X509v3 Subject Alternative Name: 
+                IP Address:169.254.12.12, IP Address:11.11.11.1, IP Address:127.0.0.1
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        32:d1:ca:03:c3:32:9b:ce:d0:85:97:6d:5e:8a:5f:0d:10:9a:
+        71:9a:d7:73:3b:67:24:0a:cf:83:f0:a1:30:29:9f:ad:f9:4e:
+        8e:86:00:fa:d8:b1:41:3d:3e:c3:1a:e8:36:c9:05:69:9f:37:
+        56:47:eb:d4:ee:61:2f:0f:8c:fb:be:f8:07:3c:02:e1:c8:df:
+        13:fa:e6:a6:1b:c0:b1:23:2c:46:09:7c:13:60:9e:6a:73:16:
+        4d:01:5f:05:0c:0a:e1:84:8f:fe:24:6d:24:9c:07:92:00:e8:
+        78:9e:17:f8:91:b5:1e:4b:7a:29:a3:9f:fa:3f:bd:d1:a0:bc:
+        5f:32:dc:2f:6a:bb:5e:06:d0:fa:62:0d:60:5b:a0:43:6a:c5:
+        c2:ba:ed:58:f3:b4:55:a5:20:8a:75:c9:6a:10:be:99:74:38:
+        50:01:aa:34:fd:81:4a:2a:b8:e8:75:50:7d:20:5b:8d:48:4a:
+        df:e1:27:7e:9f:e9:b3:68:c7:3a:35:02:b6:f4:6c:f1:6d:09:
+        da:2a:43:fb:2c:cd:04:c8:3c:a9:25:50:94:3f:83:33:98:3f:
+        3b:c6:52:68:10:26:1f:15:9f:d3:14:3f:5e:8f:55:62:55:5c:
+        f0:27:68:75:02:99:5c:a7:53:b0:e9:bf:31:d5:d0:1b:5e:d2:
+        28:7c:b1:62
+```
 
 ## Configuration
 

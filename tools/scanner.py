@@ -125,12 +125,14 @@ def sungrowScan(network):
     :returns: a dict of addresses and inverter type
     '''
     hosts = {}
-    for address in tcpScan(network, 80):
+    for address in tcpScan(network, 443):
         # Check each web server to see if it's a Sungrow
         try:
             client = Client(host=address)
-            hosts[address] = client.dev_model
-        except Exception:
+            hosts[address] = client.inverter_model
+            if hasattr(client, 'battery_id'):
+                hosts[address] += f" (battery is {client.battery_model})"
+        except Exception as e:
             pass
     return hosts
 

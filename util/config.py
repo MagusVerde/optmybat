@@ -38,7 +38,7 @@ class Config(ClassyDict):
     # The default configuration values
     _DEFAULTS = {
         'sg_host': 'inverter',
-        'sg_ws_port': 8082,
+#        'sg_ws_port': 8082,
         'admin_user': 'user',
         'admin_passwd': 'pw1111',
         'timeout': 4,

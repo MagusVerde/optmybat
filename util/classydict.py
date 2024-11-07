@@ -2,8 +2,10 @@
 #
 # Copyright 2024 Magus Verde
 #
-# A support module for Optmybat that supports network scanning to find
-# and identify supported devices on the network.
+# A dict wrapper that allows the elements of the dictionary to be accessed
+# as if they were object attributes (e.g. you can use both d.var and d['var']).
+# This looks nicer if you're dealing with a dict that has a known, regular
+# structure where the keys are strings that can be used as Python variable names.
 #
 # This file is part of Optmybat.
 #
