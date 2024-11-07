@@ -29,7 +29,7 @@ class ClassyDict(dict):
     This looks nicer if you're dealing with a dict that has a known, regular
     structure where the keys are strings that can be used as Python variable names.
 
-    Not recommended for dicts where the keys are not mappable to a varable
+    Not recommended for dicts where the keys are not mappable to a variable
     name.  The class will work correctly with any hashable key like int(1), 'a-b',
     (1, 2) but, of course, you can't access those elements as variables.
 

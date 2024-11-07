@@ -60,8 +60,8 @@ def updateForceCharge():
     target = None
     now = HHMMTime.now()
     for t in timings:
-        # Add a fudge factor (0.1) to the target to avoid bouncing around the target
-        if now >= t.start and now < t.stop and (soc+0.1) <= t.target:
+        # Add a fudge factor (0.5) to the soc to avoid bouncing around the target
+        if now >= t.start and now < t.stop and (soc+0.5) <= t.target:
             target = t
             break
     logger.debug(f"SoC is {soc}%, Force Charge is {'disabled' if fc_target == 0 else fc_target}, want {target}")
