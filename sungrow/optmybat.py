@@ -82,7 +82,7 @@ def updateForceCharge():
         target.start = now - 1
     # Do the needful
     if target is None:
-        logger.info(f"Doing nothing - battery is {soc}%, {'discharging' if charge < 0 else 'charging'} at {charge}kW")
+        logger.info(f"Doing nothing - battery is {soc}%, {'' if fc_target == 0 else 'force '}{'discharging' if charge < 0 else 'charging'} at {charge}kW")
     else:
         if target.target == 0:
             logger.info(f'Disabling force charge - battery is {soc}%')
