@@ -47,6 +47,9 @@ def doWork():
     logger = config.logger
     try:
         did_it = status(config)
+        if did_it:
+            print("Force charge is ")
+            print("Battery SOC is ")
     except SungrowError as err:
         logger.critical(err)
     except Exception as err:

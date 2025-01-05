@@ -55,7 +55,7 @@ def updateForceCharge():
     fc_target = client.getForceChargeStatus()
     # Search for a target that is active now AND the battery level is lower
     # than the target.  If none, the target will be to disable force charging
-    timings = TimedTarget.loadTargets(Config().load().soc_min)
+    timings = TimedTarget.loadTargets(Config.load().soc_min)
     logger.debug("Targets are %s", timings)
     target = None
     now = HHMMTime.now()
@@ -75,11 +75,18 @@ def updateForceCharge():
             target = TimedTarget('00:00', '00:00', 0)
     elif fc_target == target.target:
         # the battery is less than or equal to target but
-        # force charging is already correctly set - do nothing
-        target = None
+        # force charging is already correctly set
+        if charge >= 0:
+            # Everything is good - do nothing
+            target = None
+        else:
+            # Eh? - Force charging is correctly set but the battery is discharging
+            logger.warning(f"Battery discharging but charging is set to {fc_target}")
+            target.end = target.end + 60
+            target.start = now - 60
     else:
         # Need to update force charging
-        target.start = now - 1
+        target.start = now - 60
     # Do the needful
     if target is None:
         logger.info(f"Doing nothing - battery is {soc}%, {'' if fc_target == 0 else 'force '}{'discharging' if charge < 0 else 'charging'} at {charge}kW")

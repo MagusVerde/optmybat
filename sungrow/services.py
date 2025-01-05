@@ -39,9 +39,6 @@ SH5_DISABLE = 85
 SH5_WEEKDAY_ONLY = '0'
 SH5_ALL_DAYS = '1'
 
-# The inverter interface is slooow so we cache some responses for this many seconds
-CACHE_SECONDS = 5
-
 class Services(object):
     '''
     A simple client for talking to a Sungrow inverter via a WiNet-S dongle.
@@ -52,6 +49,8 @@ class Services(object):
         '''
         # Load the configurations
         config = self.config = Config.load()
+        # The inverter interface is slooow so we cache some responses for this many seconds
+        self.cache_seconds = config.timeout * 2
         # Configure self.logger
         self.logger = config.logger
         # Make the connection
@@ -73,7 +72,7 @@ class Services(object):
         '''
         # Use the cached info if it's less than a few seconds old
         now = time.time()
-        if cache.updated >= now - CACHE_SECONDS:
+        if cache.updated >= now - self.cache_seconds:
             return cache
         # Refresh the cache
         values = self.client.call(service=cache.service, dev_id=self.client.inverter_id).list
@@ -141,7 +140,7 @@ class Services(object):
         # Use the cached info if it's less than a few seconds old
         now = time.time()
         fcp = self.force_charge
-        if fcp.updated >= now - CACHE_SECONDS:
+        if fcp.updated >= now - self.cache_seconds:
             return fcp.status
         # Read the force charg status from the inverter
         fcp = self.force_charge = Parameters().loadAddressMap(SH5_FORCE_CHARGE_PARAM_MAP)
@@ -216,13 +215,13 @@ class Services(object):
         '''
         Return status indicators.
         '''
-        power = self.getPowerStats()
+        power = self.getInverterStats()
         # ClassyDict for the results
         stats = ClassyDict()
         stats.soc = self.getBatterySOC()
         stats.fc_state = self.getForceChargeStatus()
         stats.battery = self.getBatteryCharging()
-        stats.mains = float(power.purchased_power) - float(power.feed_power)
+        stats.mains = float(power.purchased_power)
         stats.raw = power
         return stats
 

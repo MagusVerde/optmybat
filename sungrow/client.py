@@ -74,15 +74,19 @@ class Client(object):
 
         :returns: True if connection succeeded, False otherwise
         '''
-        # If already connected, close it.
+        # If already connected, reuse
         if self.ws_token != '':
-            self.close()
+            return True
         # Try to open the connection
+        self.logger.debug('Connecting to %s', self.ws_endpoint)
+        # Get a re-usable HTTP session
+        self.session = requests.Session()
+        # Connect to the websocket
         try:
             self.ws_socket = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
             self.ws_socket.connect(self.ws_endpoint, timeout=self.timeout)
         except Exception as err:
-            self.logger.debug('Websocket connection to %s failed - %s', self.ws_endpoint, err)
+            self.logger.error('Websocket connection to %s failed - %s', self.ws_endpoint, err)
             return False
         self.logger.debug('Connected to %s', self.ws_endpoint)
         # Get a new token
@@ -119,10 +123,11 @@ class Client(object):
         :returns: True if the socket was open.
         '''
         if self.ws_socket is not None:
+            self.session.close()
             self.ws_socket.close()
             self.ws_socket = None
             self.ws_token = ''
-            self.logger.debug('Closed websocket connection to %s', {self.sg_host})
+            self.logger.debug('Closed connection to %s', {self.sg_host})
             return True
         return False
 
@@ -172,7 +177,7 @@ class Client(object):
         kwargs['params']['token'] = self.ws_token
         self.logger.debug('GET https://%s%s', self.sg_host, uri)
         try:
-            r = requests.get(f'https://{self.sg_host}{uri}', **kwargs)
+            r = self.session.get(f'https://{self.sg_host}{uri}', **kwargs)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
             raise SungrowError(f"Time out while trying to access https://{self.sg_host}{uri}")
         if r.status_code != 200:

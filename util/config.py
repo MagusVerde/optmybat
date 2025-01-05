@@ -32,16 +32,15 @@ class Config(ClassyDict):
     '''
     Wrapper class for all configuration parameters.  While this is a ClassyDict and
     therefore writable, it is implemented as a singleton so there is a single, read
-    only instance shared across all callers.
+    only instance shared across all callers.  Do not manually update the properties!
     '''
 
     # The default configuration values
     _DEFAULTS = {
         'sg_host': 'inverter',
-#        'sg_ws_port': 8082,
         'admin_user': 'user',
         'admin_passwd': 'pw1111',
-        'timeout': 4,
+        'timeout': 10,
         'log_level': 'INFO',
         'poll_interval': 30,
         'soc_min': [ ],
@@ -55,7 +54,7 @@ class Config(ClassyDict):
         create it and set it to myself.
         '''
         clz = self.__class__
-        if not hasattr(clz, '_instance'):
+        if not hasattr(clz, '_instance') or clz._instance is not None:
             raise Exception('Invalid call to Config() - use Config.load() instead')
         clz._instance = self
         # Find the config file

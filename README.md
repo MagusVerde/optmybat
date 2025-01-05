@@ -66,7 +66,8 @@ With the release of the WNet-S firmware `WINET-SV200.001.00.P026`, Sungrow have 
 of the devices by using TLS for all communications.  Instead of using port 80 for the UI and port 8082 for
 websocket, all traffic must now use port 443.
 
-It appears that they are using the same, self-signed certificate for all WiNet-S dongles:
+It appears that they are using the same, self-signed certificate for all WiNet-S dongles but there
+appears to be an option through the web UI to upload your own certificate.
 
 ```
 Certificate:
@@ -128,6 +129,12 @@ Certificate:
         f0:27:68:75:02:99:5c:a7:53:b0:e9:bf:31:d5:d0:1b:5e:d2:
         28:7c:b1:62
 ```
+
+### WINET-SV200.001.00.P030
+
+This firmware really slowed down the HTTPS connection negotiation to the point where it takes
+over 5 seconds to establish a connection to the Hybrid convereer.  This in turn meant that I
+had to redesign thngs to re-use the existing connection.
 
 ## Configuration
 

@@ -108,6 +108,7 @@ def test_privateAttribues():
     # Populate with some public and private items
     base = {'a': 1, '_private': 3}
     obj = ClassyDict(base)
+    # Check that we can add new, private items
     obj._secret = 'ssshhh'
     obj['__super_secret'] = 'nope'
     # Check that the private items aren't included in len(), etc

@@ -60,7 +60,7 @@ SH5_FORCE_CHARGE_PARAMS = {
 SH5_POWER_STATS_MAP = {
     "I18N_COMMON_AIR_TEM_INSIDE_MACHINE": "inverter_air_temperature",
     "I18N_COMMON_DAILY_DIRECT_CONSUMPTION_ELECTRICITY_PV": "daily_load_energy_consumption_from_pv",
-    "I18N_COMMON_DAILY_FEED_NETWORK_PV": "daily_feed-in_energy_pv",
+    "I18N_COMMON_DAILY_FEED_NETWORK_PV": "daily_feed_in_energy_pv",
     "I18N_COMMON_DAY_AC_OUTPUT_YIELD": "daily_ac_output_yield",
     "I18N_COMMON_FEED_NETWORK_TOTAL_ACTIVE_POWER": "total_export_active__power",
     "I18N_COMMON_FRAGMENT_RUN_TYPE1": "phase_a_current",
@@ -80,13 +80,13 @@ SH5_POWER_STATS_MAP = {
     "I18N_COMMON_TOTAL_DCPOWER": "total_dc_power",
     "I18N_COMMON_TOTAL_DIRECT_POWER_CONSUMPTION_PV": "total_load_energy_consumption_from_pv",
     "I18N_COMMON_TOTAL_ELECTRIC_GRID_GET_POWER": "total_purchased_energy",
-    "I18N_COMMON_TOTAL_FEED_NETWORK_PV": "total_feed-in_energy_pv",
-    "I18N_COMMON_TOTAL_FEED_NETWORK_VOLUME": "total_feed-in_energy",
+    "I18N_COMMON_TOTAL_FEED_NETWORK_PV": "total_feed_in_energy_pv",
+    "I18N_COMMON_TOTAL_FEED_NETWORK_VOLUME": "total_feed_in_energy",
     "I18N_COMMON_TOTAL_POWER_FACTOR": "total_power_factor",
-    "I18N_CONFIG_KEY_1001188": "daily_self-consumption_rate",
-    "I18N_CONFIG_KEY_1003331": "meter_phase-a_current",
-    "I18N_CONFIG_KEY_1003333": "meter_phase-b_current",
-    "I18N_CONFIG_KEY_1003335": "meter_phase-c_current",
+    "I18N_CONFIG_KEY_1001188": "daily_self_consumption_rate",
+    "I18N_CONFIG_KEY_1003331": "meter_phase_a_current",
+    "I18N_CONFIG_KEY_1003333": "meter_phase_b_current",
+    "I18N_CONFIG_KEY_1003335": "meter_phase_c_current",
     "I18N_CONFIG_KEY_4060": "purchased_power",
 }
 

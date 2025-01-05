@@ -55,7 +55,7 @@ monitoring:
 # lower than the stop time, it will include midnight.
 #
 # The example times below provide for:
-#   Very cheap electrictity from midnight to 06:00
+#   Very cheap electricity from midnight to 06:00
 #   Cheaper electricity from 10:00 to 14:00
 #   High prices at other times but don't let the battery completely drain
 #
