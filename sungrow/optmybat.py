@@ -82,7 +82,7 @@ def updateForceCharge():
         else:
             # Eh? - Force charging is correctly set but the battery is discharging
             logger.warning(f"Battery discharging but charging is set to {fc_target}")
-            target.end = target.end + 60
+            target.stop = target.stop + 60
             target.start = now - 60
     else:
         # Need to update force charging

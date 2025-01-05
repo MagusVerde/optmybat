@@ -123,6 +123,7 @@ class Client(object):
         :returns: True if the socket was open.
         '''
         if self.ws_socket is not None:
+            self.logger.debug(f"Closing connection to {self.sg_host}")
             self.session.close()
             self.ws_socket.close()
             self.ws_socket = None
