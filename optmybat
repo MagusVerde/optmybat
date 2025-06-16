@@ -22,7 +22,7 @@
 # You can review the GNU Affero General Public License at <https://www.gnu.org/licenses/>.
 
 import argparse
-from tools import reset, scanner, status
+from tools import reboot, reset, scanner, status
 from sungrow import optmybat
 
 def parseArgs():
@@ -36,6 +36,9 @@ def parseArgs():
     choices.add_argument('--once',
         action='store_true',
         help='Only run once')
+    choices.add_argument('--reboot',
+        action='store_true',
+        help='Reboot the comms module')
     choices.add_argument('--reset',
         action='store_true',
         help='Reset everything to the default, unmanaged state')
@@ -54,8 +57,11 @@ def parseArgs():
 args = parseArgs()
 
 # Do the needful
-if args.reset:
-    # Rset the inverter to a known state
+if args.reboot:
+    # Reboot WiNet-S comms module for the inverter
+    reboot.main(args)
+elif args.reset:
+    # Reset the inverter to a known state
     reset.main(args)
 elif args.scan != 'unset':
     # The --scan argument was used.  Scan for inverters

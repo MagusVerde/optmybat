@@ -225,6 +225,12 @@ class Services(object):
         stats.raw = power
         return stats
 
+    def reboot(self):
+        '''
+        Ask the WiNet-S dongle to reboot
+        '''
+        self.client.post("/system/maintenance", params={"reboot": 1})
+
     def reset(self):
         '''
         Reset to known good state

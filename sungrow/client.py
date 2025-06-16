@@ -188,6 +188,35 @@ class Client(object):
         self.logger.debug("Response %s", rdata)
         return rdata
 
+    def post(self, uri, **kwargs):
+        '''
+        Post something to the inverter. Automatically adds the token to the request.
+
+        :param uri: Request uri (minus host and protocol)
+        :param kwargs: additional requests.post arguments
+        :returns: a ClassyDict containing the result_data.
+        :raises: SungrowError if there was a problem.
+        '''
+        # Make sure there is a params argument
+        if 'params' not in kwargs:
+            kwargs['params'] = dict()
+        # And a timeout arg
+        if 'timeout' not in kwargs:
+            kwargs['timeout'] = self.timeout
+        # And ignore the SSL certificate
+        if 'verify' not in kwargs:
+            kwargs['verify'] = False
+        # Add the token to the params
+        kwargs['params']['token'] = self.ws_token
+        self.logger.debug('POST https://%s%s params=%s', self.sg_host, uri, kwargs['params'])
+        try:
+            r = self.session.post(f'https://{self.sg_host}{uri}', **kwargs)
+        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+            raise SungrowError(f"Time out while trying to access https://{self.sg_host}{uri}")
+        if r.status_code != 200:
+            raise SungrowError(f'Failed to access https://{self.sg_host}{uri} - {r.status_code} - {r.text}')
+        return r.text
+
     def authenticate(self, username, password):
         '''
         Login to the inverter.
@@ -231,7 +260,7 @@ class Client(object):
         try:
             r = json.loads(body)
         except json.decoder.JSONDecodeError:
-            raise SungrowError(f'Non-JSON response - {r.text}')
+            raise SungrowError(f'Failed to parse the JSON response')
         if 'result_code' not in r or 'result_msg' not in r or 'result_data' not in r:
             raise SungrowError(f'Unexpected response - {r}')
         if r['result_code'] != 1:
